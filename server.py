@@ -12,9 +12,12 @@ app.secret_key = "dev"
 app.jinja_env.undefined = StrictUndefined
 
 
+
 @app.route('/')
 def homepage():
 	"""view the homepage."""
+	session['show_form'] = True
+	session['show_login'] = True
 	
 	return render_template('homepage.html')
 
@@ -34,6 +37,64 @@ def show_movie_details(movie_id):
 	return render_template('movie_details.html', movie=movie)
 
 
+@app.route('/users')
+def view_users():
+	""" view the users."""
+
+	users = crud.return_all_users()
+	return render_template("all_users.html", users=users)
+
+
+@app.route('/users', methods=['POST'])
+def create_user():
+	"""Create a new user."""
+	# if user already exists, return user
+	email = request.form['email']
+	password = request.form['password']
+
+	user = crud.get_user_by_email(email)
+	if user:
+		flash('Sorry that email is already registered')
+	else:
+		crud.create_user(email, password)
+		flash('Your account was created! Please log in.')
+
+
+	return redirect('/')
+
+
+@app.route('/login', methods=['POST'])
+def login_user():
+	## right now it only lets you log in with existing
+	#session['show_login'] == True
+	# gets email and password from form
+	email = request.form['email']
+	password = request.form['password']
+	# gets user info based on email
+	user = crud.get_user_by_email(email)
+	session['user'] = []
+	# checks if pasword in db matches form pasword
+	if user.password == password:
+		#adds user to session
+		session['user'] = user.user_id
+		flash('you are logged in!')
+		return redirect('/')
+
+	else:
+		flash('incorrect login.')
+		return redirect('/')
+
+
+
+
+	# otherwise return None
+
+@app.route('/users/<user_id>')
+def show_user_details(user_id):
+	"""show movie details on page."""
+
+	user = crud.get_user_by_id(user_id)
+	return render_template('user_details.html', user=user)
 
 
 

@@ -36,6 +36,11 @@ def return_all_movies():
 	"""returns all movies. """
 	return Movie.query.all()
 
+def get_movie_by_id(movie_id):
+	"""gets movie based on ID."""
+
+	return Movie.query.get(movie_id)
+
 
 
 

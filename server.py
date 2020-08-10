@@ -15,6 +15,8 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def homepage():
 	"""view the homepage."""
+	session['show_form'] = True
+	session['show_login'] = True
 	
 	return render_template('homepage.html')
 
@@ -31,6 +33,26 @@ def show_movie_details(movie_id):
 	"""show movie details on page."""
 
 	movie = crud.get_movie_by_id(movie_id)
+	
+	return render_template('movie_details.html', movie=movie)
+
+
+
+@app.route('/movies/<movie_id>', methods=['POST'])
+def make_movie_rating(movie_id):
+	"""show movie details on page."""
+
+	movie = crud.get_movie_by_id(movie_id)
+	user_d = session['user']
+	score = request.form['score']
+
+	new_rating = crud.create_rating(user_d, movie, score)
+	print(new_rating)
+	session['rating'] = new_rating
+
+	return redirect('movie_details.html')
+
+
 	
 	return render_template('movie_details.html', movie=movie)
 
